@@ -1,2 +1,9 @@
+[web_servers]
+devops1-ubuntu
+
+[db_servers]
+devops2-fed
+
+[file_servers]
 devops1-ubuntu
 devops2-fed

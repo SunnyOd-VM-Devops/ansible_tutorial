@@ -1,0 +1,24 @@
+---
+
+- hosts: all
+  become: true
+  tasks: 
+  # Ubuntu
+  - name: Update Repository index & install the apache2 & php packages on ubuntu
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+  
+  # Fedora
+  - name: Update Repository index & install the apache2 and php packages on fedora 
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution in "Fedora"

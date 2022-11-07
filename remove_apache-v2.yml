@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+  become: true
+  tasks: 
+  # All distributions
+  - name: Install apache & php packages
+    package:      # Generic package manager which will run appropriate command dependant on host distribution
+      name:
+        - "{{ apache_package }}"  # variable names. Must be declared with "{{ variable_name }}"
+        - "{{ php_package }}"     # are referenced inside 'inventory' file & mapped to package names
+      state: absent
+      update_cache: yes
