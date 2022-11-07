@@ -2,6 +2,9 @@
 devops2-fed
 devops1-ubuntu
 
+[workstations]
+devops1-ubuntu
+
 [db_servers]
 devops2-fed
 

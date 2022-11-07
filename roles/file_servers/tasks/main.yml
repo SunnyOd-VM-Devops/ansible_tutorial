@@ -1,0 +1,6 @@
+- name: install samba package (Same package name for all dists)
+  tags: samba,fileserver
+  package:
+    name: samba
+    state: latest
+  # no need for 'when' as samba package name same on all dists
