@@ -1,0 +1,96 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (Fedora)
+    tags: always      # Always run this section
+    dnf:
+      update_cache: yes
+    changed_when: false      # prevents reporting a change in outputs after update_cache
+    when: ansible_distribution == "Fedora"
+
+  - name: install updates (Ubuntu)
+    tags: always
+    apt:
+      update_cache: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+#########################################
+
+- hosts: all
+  become: true
+  tasks:
+ 
+  - name: add ssh key for simone
+    authorized_key:
+      user: simone
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBebBsUW/IaGswi3r2gOcUUOC4zpKznAWbIv3LmeNP4O ansible"
+
+- hosts: web_servers
+  become: true
+  tasks:
+
+  - name: install the apache2 & php packages on ubuntu
+    tags: apache,apache2,ubuntu   # multiple tags like this
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution in ["Ubuntu", "Debian"]
+  
+  - name: install the apache2 and php packages on fedora 
+    tags: apache,httpd,fedora
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution in "Fedora"
+
+  - name: start httpd (Fedora only, ubuntu does this automatically)
+    tags: apache,fedora,httpd
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "Fedora"
+
+  - name: copy default html file for site
+    tags: apache,apache2,httpd
+    copy:
+      src: default_site.html          # file lives inside folder called 'files' but ansible doesn't need to ref it
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+- hosts: db_servers
+  become: true
+  tasks:
+    - name: install mariadb package (Fedora)
+      tags: fedora,db,mariadb
+      dnf:
+        name: mariadb
+        state: latest
+      when: ansible_distribution == "Fedora"
+    
+    - name: install mariadb package (Ubuntu)
+      tags: db,mariadb,ubuntu
+      dnf:
+        name: mariadb-server
+        state: latest
+      when: ansible_distribution == "Ubuntu"
+
+- hosts: file_servers
+  become: true
+  tasks:
+  - name: install samba package (Same package name for all dists)
+    tags: samba,fileserver
+    package:
+      name: samba
+      state: latest
+                    # no need for 'when' as samba package name same on all dists
